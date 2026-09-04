@@ -1,49 +1,41 @@
-# 💸 SpendWise
+# 💸 SpendWise — Smart Expense Tracker
 
-> A full-stack, multi-user **Expense Tracker** built with FastAPI, PostgreSQL, React, and JWT authentication.
+A full-stack personal finance tracker built with **FastAPI + React + Supabase PostgreSQL**.
 
-[![Backend CI](https://github.com/SamarthNayak99/SpendWise/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/SamarthNayak99/SpendWise/actions/workflows/backend-ci.yml)
-[![Frontend CI](https://github.com/SamarthNayak99/SpendWise/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/SamarthNayak99/SpendWise/actions/workflows/frontend-ci.yml)
+![SpendWise Dashboard](https://img.shields.io/badge/Status-Live-brightgreen) ![Python](https://img.shields.io/badge/Python-3.13-blue) ![React](https://img.shields.io/badge/React-18-61dafb) ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)
 
 ---
 
 ## ✨ Features
 
-- 🔐 **JWT Authentication** — Signup, login, protected routes
-- 💰 **Full CRUD** — Add, view, edit, delete expenses & income
-- 📊 **Analytics Dashboard** — Balance, charts, category breakdown
-- 🎯 **Budget Goals** — Monthly budgets with alert thresholds
-- 🗂️ **Custom Categories** — Icons, colors, per-user categories
-- 📤 **CSV Export** — Download all your data
-- 🌙 **Dark/Light Mode** — Toggle between themes
-- 📱 **Responsive** — Works on mobile and desktop
+- 🔐 **Authentication** — JWT-based signup/login, protected routes
+- 💸 **Expense CRUD** — Add, edit, delete income & expenses with categories
+- 📊 **Dashboard** — Balance, monthly stats, spending charts, recent transactions
+- 🎯 **Budgets** — Set monthly category budgets with alert thresholds
+- 📈 **Analytics** — Trend charts, category breakdown, CSV export
+- 🌙 **Dark/Light Mode** — Persistent theme toggle
+- 💱 **Multi-currency** — INR, USD, EUR, GBP, JPY support
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18 + Vite |
-| Styling | Vanilla CSS + CSS Variables |
-| Charts | Recharts |
-| HTTP Client | Axios |
-| Backend | Python + FastAPI (async) |
-| ORM | SQLAlchemy (async) + Alembic |
-| Database | PostgreSQL |
-| Auth | JWT (python-jose) + bcrypt |
-| Validation | Pydantic v2 |
-| Deploy | Render (BE) + Vercel (FE) |
-| CI/CD | GitHub Actions |
+| **Frontend** | React 18, Vite, Recharts, Axios |
+| **Backend** | FastAPI, SQLAlchemy (async), Alembic |
+| **Database** | Supabase (PostgreSQL) |
+| **Auth** | JWT (python-jose), bcrypt |
+| **Styling** | Vanilla CSS with CSS custom properties |
 
 ---
 
-## 🚀 Local Development
+## 🚀 Local Development Setup
 
 ### Prerequisites
-- Python 3.12+
-- Node.js 20+
-- Docker Desktop (for PostgreSQL)
+- Python 3.11+
+- Node.js 18+
+- A free [Supabase](https://supabase.com) account
 
 ### 1. Clone the repo
 ```bash
@@ -51,54 +43,49 @@ git clone https://github.com/SamarthNayak99/SpendWise.git
 cd SpendWise
 ```
 
-### 2. Start PostgreSQL with Docker
-```bash
-docker-compose up db -d
-```
+### 2. Set up the database (Supabase)
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Go to **SQL Editor** → paste contents of `backend/supabase_setup.sql` → **Run**
+3. Go to **Settings → Database** → copy the **Connection string (URI)**
 
-### 3. Set up the backend
-```bash
+### 3. Backend setup
+```powershell
 cd backend
+python -m venv venv
+.\venv\Scripts\activate        # Windows
+# source venv/bin/activate     # macOS/Linux
 
-# Create virtual environment
-python -m venv .venv
-.venv\Scripts\activate        # Windows
-# source .venv/bin/activate   # Mac/Linux
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Copy and configure environment variables
-copy .env.example .env
-# Edit .env with your SECRET_KEY
-
-# Run database migrations
-alembic upgrade head
-
-# Seed default categories
-python seed.py
-
-# Start the API server
-uvicorn app.main:app --reload
 ```
 
-API docs available at: **http://localhost:8000/docs** 📖
+Create `backend/.env`:
+```env
+DATABASE_URL=postgresql+asyncpg://postgres:[PASSWORD]@db.[PROJECT-ID].supabase.co:5432/postgres
+DATABASE_URL_SYNC=postgresql+psycopg2://postgres:[PASSWORD]@db.[PROJECT-ID].supabase.co:5432/postgres
+SECRET_KEY=your-super-secret-key-here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+ALLOWED_ORIGINS=["http://localhost:5173"]
+ENV=development
+```
 
-### 4. Set up the frontend
-```bash
+> **Note:** If your password contains special characters like `@`, encode them: `@` → `%40`
+
+Start the backend:
+```powershell
+uvicorn app.main:app --reload --port 8000
+```
+
+API docs available at: `http://localhost:8000/docs`
+
+### 4. Frontend setup
+```powershell
 cd frontend
-
-# Install dependencies
 npm install
-
-# Copy and configure environment variables
-copy .env.example .env
-
-# Start the dev server
 npm run dev
 ```
 
-Frontend available at: **http://localhost:5173** 🎨
+Open: **http://localhost:5173**
 
 ---
 
@@ -106,77 +93,58 @@ Frontend available at: **http://localhost:5173** 🎨
 
 ```
 SpendWise/
-├── backend/          # FastAPI backend
+├── backend/
 │   ├── app/
-│   │   ├── models/   # SQLAlchemy ORM models
-│   │   ├── schemas/  # Pydantic request/response schemas
-│   │   ├── routers/  # API route handlers
-│   │   ├── utils/    # JWT + bcrypt helpers
-│   │   └── dependencies/ # FastAPI dependencies
-│   ├── alembic/      # DB migrations
-│   └── seed.py       # Default category seed
+│   │   ├── models/          # SQLAlchemy ORM models
+│   │   ├── routers/         # FastAPI route handlers
+│   │   ├── schemas/         # Pydantic request/response schemas
+│   │   ├── utils/           # JWT, bcrypt helpers
+│   │   ├── dependencies/    # Auth middleware
+│   │   ├── database.py      # Async DB engine + session
+│   │   ├── config.py        # Pydantic settings
+│   │   └── main.py          # FastAPI app entry point
+│   ├── alembic/             # DB migrations
+│   ├── supabase_setup.sql   # One-click DB setup script
+│   └── requirements.txt
 │
-├── frontend/         # React + Vite frontend
-│   └── src/
-│       ├── api/      # Axios API functions
-│       ├── context/  # Auth + Theme contexts
-│       ├── components/ # Reusable UI components
-│       └── pages/    # Route pages
-│
-├── .github/workflows/ # GitHub Actions CI/CD
-└── docker-compose.yml # Local dev setup
+└── frontend/
+    └── src/
+        ├── api/             # Axios API client + endpoint wrappers
+        ├── components/      # Reusable UI components
+        ├── context/         # React Context (Auth, Theme)
+        ├── pages/           # Dashboard, Expenses, Analytics, etc.
+        └── App.jsx
 ```
 
 ---
 
-## 🌐 API Documentation
-
-Interactive Swagger UI available at `/docs` when running locally.
+## 🔌 API Endpoints
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/auth/signup` | Register |
-| POST | `/auth/login` | Login → JWT |
-| GET | `/auth/me` | Current user |
-| GET | `/expenses` | List expenses (with filters) |
-| POST | `/expenses` | Create expense |
-| GET | `/analytics/dashboard` | Dashboard data |
-| GET | `/analytics/trends` | Monthly trends |
-| GET | `/analytics/export` | Export CSV |
+|--------|----------|-------------|
+| `POST` | `/auth/signup` | Register new user |
+| `POST` | `/auth/login` | Login → JWT token |
+| `GET` | `/auth/me` | Get current user |
+| `GET/POST` | `/expenses` | List / Create expenses |
+| `PUT/DELETE` | `/expenses/{id}` | Update / Delete expense |
+| `GET/POST` | `/categories` | List / Create categories |
+| `GET/POST` | `/budgets` | List / Create budgets |
+| `GET` | `/analytics/dashboard` | Dashboard summary |
+| `GET` | `/analytics/trends` | Monthly trends |
+| `GET` | `/analytics/category-breakdown` | Spending by category |
+| `GET` | `/analytics/export` | Export CSV |
 
 ---
 
-## 🚢 Deployment
+## 🤝 Contributing
 
-### Backend (Render/Railway)
-1. Connect your GitHub repo
-2. Set root directory to `backend/`
-3. Build command: `pip install -r requirements.txt && alembic upgrade head && python seed.py`
-4. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Add environment variables from `.env.example`
-
-### Frontend (Vercel)
-1. Connect your GitHub repo
-2. Set root directory to `frontend/`
-3. Add `VITE_API_URL=https://your-backend-url.onrender.com`
-4. Deploy!
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Commit your changes: `git commit -m 'feat: add your feature'`
+4. Push and open a Pull Request
 
 ---
 
-## 📚 Learning Outcomes
+## 📝 License
 
-This project teaches:
-- **HTTP → REST API design** with FastAPI
-- **Database design** — relational schema, foreign keys, ORM
-- **Authentication** — bcrypt hashing, JWT tokens, stateless auth
-- **Authorization** — user_id filtering on every query
-- **React** — Context API, hooks, component design
-- **SQL aggregation** — GROUP BY, SUM for analytics
-- **CI/CD** — GitHub Actions pipelines
-- **Cloud deployment** — environment config, CORS
-
----
-
-## 📄 License
-
-MIT License — feel free to use this for your portfolio!
+MIT © [Samarth Nayak](https://github.com/SamarthNayak99)
