@@ -1,10 +1,12 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
-    # Database
+    # Database — async URL used at runtime
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/spendwise"
+    # Optional sync URL for Alembic (uses psycopg2). If not set, alembic converts DATABASE_URL.
+    DATABASE_URL_SYNC: Optional[str] = None
 
     # JWT
     SECRET_KEY: str = "change-this-to-a-long-random-secret-key-in-production"

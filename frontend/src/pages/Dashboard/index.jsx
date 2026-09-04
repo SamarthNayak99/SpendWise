@@ -115,7 +115,7 @@ export default function Dashboard() {
       {/* Recent Expenses */}
       <div className="card" style={{ marginTop: 'var(--space-6)' }}>
         <h2 className="section-title">Recent Transactions</h2>
-        {dashboard?.recent_expenses?.length === 0 ? (
+        {!dashboard?.recent_expenses?.length ? (
           <p className="empty-state">No transactions yet. <a href="/expenses">Add your first expense →</a></p>
         ) : (
           <div className="recent-list">
